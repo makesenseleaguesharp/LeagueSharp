@@ -166,7 +166,7 @@ namespace SenseElise
                 if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
                     _W.Cast(target);
 
-                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
+                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range && !_W.IsReady())
                     _Q.Cast(target);
 
                 if (Option.Item("Auto Smite Enemy").GetValue<bool>())
@@ -204,7 +204,7 @@ namespace SenseElise
                 if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
                     _W.Cast(target);
 
-                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
+                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range && !_W.IsReady())
                     _Q.Cast(target);
             }
             else
