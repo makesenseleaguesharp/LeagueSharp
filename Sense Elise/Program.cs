@@ -14,7 +14,7 @@ namespace SenseElise
         private static string championName = "Elise";
         private static Orbwalking.Orbwalker _Orbwalker;
         private static Spell _Q, _W, _E, _R, _sQ, _sW, _sE;
-        
+
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
@@ -46,7 +46,7 @@ namespace SenseElise
 
             switch (_Orbwalker.ActiveMode)
             {
-                case Orbwalking.OrbwalkingMode.LastHit:
+                case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
                     break;
                 case Orbwalking.OrbwalkingMode.LaneClear:
@@ -74,11 +74,18 @@ namespace SenseElise
             var target = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
             var Eprediction = _E.GetPrediction(target);
 
-            if ((Option.Item("HotKey E").GetValue<bool>() && _E.IsReady() && Eprediction.Hitchance > HitChance.High && target.Distance(target) <= _W.Range))
-                _E.Cast();
-                
+            if (_E.IsReady() && Option.Item("HotKey E").GetValue<bool>() && target.Distance(target) <= _E.Range)
+            {
+                switch (Eprediction.Hitchance)
+                {
+                    case HitChance.High:
+                    case HitChance.VeryHigh:
+                    case HitChance.Immobile:
 
-            //if (_E.IsReady() && Option.Item("HotKey E").GetValue<Bool>())
+                        _E.Cast(Eprediction.CastPosition);
+                        break;
+                }
+            }
         }
         private static void Harass()
         {
@@ -87,8 +94,7 @@ namespace SenseElise
 
             if (target != null)
             {
-                var Wprediction = _W.GetPrediction(target);
-                if (Option.Item("Harass Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range && Wprediction.Hitchance >= HitChance.Medium)
+                if (Option.Item("Harass Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
                     _W.Cast(target);
                 if (Option.Item("Harass Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
                     _Q.CastOnUnit(target);
@@ -160,18 +166,37 @@ namespace SenseElise
             if (Human())
             {
                 var Eprediction = _E.GetPrediction(target);
-                if (Option.Item("Combo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range && Eprediction.Hitchance >= HitChance.High)
-                    _E.Cast(target);
+                var Wprediction = _W.GetPrediction(target);
+
+                if (Option.Item("Combo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range)
+                {
+                    switch (Eprediction.Hitchance)
+                    {
+                        case HitChance.High:
+                        case HitChance.VeryHigh:
+                        case HitChance.Immobile:
+                            _E.Cast(target);
+                            break;
+                    }
+                }
 
                 if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
-                    _W.Cast(target);
+                {
+                    switch (Wprediction.Hitchance)
+                    {
+                        case HitChance.Medium:
+                        case HitChance.High:
+                        case HitChance.VeryHigh:
+                        case HitChance.Immobile:
+                            _W.Cast(target);
+                            break;   
+                    }
+                }
 
-                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range && !_W.IsReady())
+                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
                     _Q.Cast(target);
 
-                if (Option.Item("Auto Smite Enemy").GetValue<bool>())
-
-                if (!_W.IsReady() && !_Q.IsReady() && Option.Item("JungleClearMenu R").GetValue<bool>() && Player.Distance(target) <= _sE.Range)
+                if (!_Q.IsReady() && !_W.IsReady() && !_E.IsReady() && Option.Item("Combo R").GetValue<bool>())
                     _R.Cast();
             }
             else
@@ -188,31 +213,45 @@ namespace SenseElise
 
         private static void GankingCombo()
         {
-            var Minions = MinionManager.GetMinions(_E.Range).FirstOrDefault();
             var target = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
 
             if (Human())
             {
                 var Eprediction = _E.GetPrediction(target);
+                var Wprediction = _W.GetPrediction(target);
                 if (_R.IsReady() && Option.Item("R").GetValue<bool>())
-                {
                     _R.Cast();
+                
+                if (Option.Item("GankingCombo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range && Eprediction.Hitchance >= HitChance.High)
+                {
+                    switch (Eprediction.Hitchance)
+                    {
+                        case HitChance.High:
+                        case HitChance.VeryHigh:
+                        case HitChance.Immobile:
+                            _E.Cast(target);
+                            break;
+                    }
+
                 }
-                if (Option.Item("Combo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range && Eprediction.Hitchance >= HitChance.High)
-                    _E.Cast(target);
 
-                if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
-                    _W.Cast(target);
+                if (Option.Item("GankingCombo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
+                    switch (Eprediction.Hitchance)
+                    {
+                        case HitChance.High:
+                        case HitChance.VeryHigh:
+                        case HitChance.Immobile:
+                            _E.Cast(target);
+                            break;
+                    }
 
-                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range && !_W.IsReady())
+                if (Option.Item("GankingCombo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
                     _Q.Cast(target);
             }
             else
             {
-                if (_sE.IsReady() && Option.Item("GankingCombo Spider E").GetValue<bool>() && _sE.IsReady() && Player.Distance(Minions) <= _sE.Range && Player.Distance(target) > _sQ.Range)
-                    _sE.Cast(Minions);
-                else if (_sE.IsReady() && Player.Distance(target) <= _sE.Range && Player.Distance(target) > _sQ.Range && Option.Item("GankingCombo Spider E").GetValue<bool>())
-                     _sE.Cast(target);
+                if (_sE.IsReady() && Player.Distance(target) <= _sE.Range && Player.Distance(target) > _sQ.Range && Option.Item("GankingCombo Spider E").GetValue<bool>())
+                     _sE.Cast(target);                    
                 if (_sQ.IsReady() && Option.Item("GankingCombo Spider Q").GetValue<bool>())
                     _sQ.Cast(target);
                 if (_sW.IsReady() && Option.Item("GankingCombo Spider W").GetValue<bool>())
@@ -315,8 +354,7 @@ namespace SenseElise
                 MiscMenu.AddItem((new MenuItem("Auto Smite Blue", "Auto Smite Blue").SetValue(true)));
                 MiscMenu.AddItem((new MenuItem("Auto Smite Baron", "Auto Smite Baron").SetValue(true)));
                 MiscMenu.AddItem((new MenuItem("Auto Smite Dragon", "Auto Smite Dragon").SetValue(true)));
-                MiscMenu.AddItem((new MenuItem("Auto Smite Enemy", "Auto Smite Enemy").SetValue(true)));
-                MiscMenu.AddItem((new MenuItem("Anti Gapcloser", "Anti Gapcloser").SetValue(true)));
+                MiscMenu.AddItem((new MenuItem("Auto Smite Enemy", "Auto Smite Enemy").SetValue(true)));    
             }
 
             var DrawingMenu = new Menu("Drawing", "Drawing");
