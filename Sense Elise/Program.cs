@@ -49,18 +49,22 @@ namespace SenseElise
                 case Orbwalking.OrbwalkingMode.Mixed:
                     Harass();
                     break;
+
                 case Orbwalking.OrbwalkingMode.LaneClear:
                     if (JungleMinions.Count > 0)
                         JungleClear();
                     else
                         LaneClear();
                     break;
+
                 case Orbwalking.OrbwalkingMode.Combo:
                     Combo();
                     break;
+
                 case Orbwalking.OrbwalkingMode.GankingComboMode:
                     GankingCombo();
                     break;
+
                 case Orbwalking.OrbwalkingMode.HotKey:
                     HotKey();
                     break;
@@ -78,10 +82,9 @@ namespace SenseElise
             {
                 switch (Eprediction.Hitchance)
                 {
+                    case HitChance.Medium:
                     case HitChance.High:
                     case HitChance.VeryHigh:
-                    case HitChance.Immobile:
-
                         _E.Cast(Eprediction.CastPosition);
                         break;
                 }
@@ -91,43 +94,48 @@ namespace SenseElise
         {
             if (Human() && Player.ManaPercent <= Option.Item("Harass Mana").GetValue<Slider>().Value) return;
             var target = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
+            var Qtarget = TargetSelector.GetTarget(_Q.Range, TargetSelector.DamageType.Magical);
 
             if (target != null)
             {
                 if (Option.Item("Harass Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
                     _W.Cast(target);
-                if (Option.Item("Harass Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
-                    _Q.CastOnUnit(target);
+
+                if (Option.Item("Harass Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(Qtarget) <= _Q.Range)
+                    _Q.Cast(Qtarget);
             }
         }
 
         private static void LaneClear()
         {
-            var Minions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range).FirstOrDefault();
+            var WMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range).FirstOrDefault();
+            var QMinions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range).FirstOrDefault();
+            var sQMinions = MinionManager.GetMinions(Player.ServerPosition, _sQ.Range).FirstOrDefault();
 
             if (Human())
             {
                 if (Player.ManaPercent <= Option.Item("LaneClear Mana").GetValue<Slider>().Value) return;
                 else
                 {
-                    if (Option.Item("Lane Human W").GetValue<bool>() && _W.IsReady())
-                        _W.Cast(Minions);
-                    if (Option.Item("Lane Human Q").GetValue<bool>() && _Q.IsReady())
-                        _Q.Cast(Minions);
+                    if (Option.Item("Lane Human W").GetValue<bool>() && _W.IsReady() && WMinions.Distance(WMinions) <= _W.Range)
+                        _W.Cast(WMinions);
+
+                    if (Option.Item("Lane Human Q").GetValue<bool>() && _Q.IsReady() && QMinions.Distance(QMinions) <= _Q.Range)
+                        _Q.Cast(QMinions);
                 }
             }
             else
             {
-                if (Option.Item("Lane Spider Q").GetValue<bool>() && _sQ.IsReady() && Minions.Distance(Minions) <= _sQ.Range)
-                    _sQ.Cast(Minions);
-                if (Option.Item("Lane Spider W").GetValue<bool>() && _sW.IsReady())
+                if (Option.Item("Lane Spider Q").GetValue<bool>() && _sQ.IsReady() && sQMinions.Distance(sQMinions) <= _sQ.Range)
+                    _sQ.Cast(sQMinions);
+                if (Option.Item("Lane Spider W").GetValue<bool>() && _sW.IsReady() && sQMinions.Distance(sQMinions) <= 125)
                     _sW.Cast();
             }
         }
 
         private static void JungleClear()
         {
-            var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
             foreach (var minion in JungleMinions)
             {
@@ -148,12 +156,12 @@ namespace SenseElise
                 }
                 else
                 {
-                    if (_sQ.IsReady() && Option.Item("JungleClearMenu Spider Q").GetValue<bool>())
+                    if (_sQ.IsReady() && Option.Item("JungleClearMenu Spider Q").GetValue<bool>() && Player.Distance(minion) <= _sQ.Range)
                         _sQ.Cast(minion);
 
-                    if (_sW.IsReady() && Option.Item("JungleClearMenu Spider W").GetValue<bool>())
+                    if (_sW.IsReady() && Option.Item("JungleClearMenu Spider W").GetValue<bool>() && Player.Distance(minion) <= 125)
                         _sW.Cast();
-                      
+
                 }
             }
 
@@ -161,52 +169,60 @@ namespace SenseElise
 
         private static void Combo()
         {
-            var target = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
+            var Qtarget = TargetSelector.GetTarget(_Q.Range, TargetSelector.DamageType.Magical);
+            var Wtarget = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
+            var Etarget = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
+            var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
+            var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
+            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
+
 
             if (Human())
             {
-                var Eprediction = _E.GetPrediction(target);
-                var Wprediction = _W.GetPrediction(target);
+                var Eprediction = _E.GetPrediction(Etarget);
+                var Wprediction = _W.GetPrediction(Wtarget);
 
-                if (Option.Item("Combo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range)
+                if (Option.Item("Combo Human E").GetValue<bool>() && _E.IsReady() && Etarget.Distance(Wtarget) <= _E.Range)
                 {
                     switch (Eprediction.Hitchance)
-                    {
-                        case HitChance.High:
-                        case HitChance.VeryHigh:
-                        case HitChance.Immobile:
-                            _E.Cast(target);
-                            break;
-                    }
-                }
-
-                if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
-                {
-                    switch (Wprediction.Hitchance)
                     {
                         case HitChance.Medium:
                         case HitChance.High:
                         case HitChance.VeryHigh:
                         case HitChance.Immobile:
-                            _W.Cast(target);
-                            break;   
+                            _E.Cast(Etarget);
+                            break;
                     }
                 }
 
-                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
-                    _Q.Cast(target);
+                if (Option.Item("Combo Human W").GetValue<bool>() && _W.IsReady() && Wtarget.Distance(Wtarget) <= _W.Range)
+                {
+                    switch (Wprediction.Hitchance)
+                    {
+                        case HitChance.Low:
+                        case HitChance.Medium:
+                        case HitChance.High:
+                        case HitChance.VeryHigh:
+                        case HitChance.Immobile:
+                            _W.Cast(Wtarget);
+                            break;
+                    }
+                }
+
+                if (Option.Item("Combo Human Q").GetValue<bool>() && _Q.IsReady() && Qtarget.Distance(Qtarget) <= _Q.Range)
+                    _Q.Cast(Qtarget);
 
                 if (!_Q.IsReady() && !_W.IsReady() && !_E.IsReady() && Option.Item("Combo R").GetValue<bool>())
                     _R.Cast();
             }
             else
             {
-                if (Option.Item("Combo Spider Q").GetValue<bool>() && _sQ.IsReady() && target.Distance(target) <= _sQ.Range)
-                    _sQ.Cast(target);
-                if (Option.Item("Combo Spider W").GetValue<bool>() && _sW.IsReady() && target.Distance(target) <= _sQ.Range)
+                if (Option.Item("Combo Spider Q").GetValue<bool>() && _sQ.IsReady() && sQtarget.Distance(sQtarget) <= _sQ.Range)
+                    _sQ.Cast(sQtarget);
+                if (Option.Item("Combo Spider W").GetValue<bool>() && _sW.IsReady() && sQtarget.Distance(sQtarget) <= 125)
                     _sW.Cast();
-                if (Option.Item("Combo Spider E").GetValue<bool>() && _sE.IsReady() && Player.Distance(target) <= _sE.Range && Player.Distance(target) > _sQ.Range)
-                    _sE.Cast(target);
+                if (Option.Item("Combo Spider E").GetValue<bool>() && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
+                    _sE.Cast(sEtarget);
             }
 
         }
@@ -221,11 +237,25 @@ namespace SenseElise
                 var Wprediction = _W.GetPrediction(target);
                 if (_R.IsReady() && Option.Item("R").GetValue<bool>())
                     _R.Cast();
-                
-                if (Option.Item("GankingCombo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range && Eprediction.Hitchance >= HitChance.High)
+
+                if (!Human())
+                {
+                    if (_sE.IsReady() && Player.Distance(target) <= _sE.Range && Player.Distance(target) > _sQ.Range && Option.Item("GankingCombo Spider E").GetValue<bool>())
+                        _sE.Cast(target);
+                    if (_sQ.IsReady() && Option.Item("GankingCombo Spider Q").GetValue<bool>())
+                        _sQ.Cast(target);
+                    if (_sW.IsReady() && Option.Item("GankingCombo Spider W").GetValue<bool>())
+                        _sW.Cast();
+                    if (!_sW.IsReady() && _sQ.IsReady() && _R.IsReady())
+                        _R.Cast();
+                }
+
+                if (Option.Item("GankingCombo Human E").GetValue<bool>() && _E.IsReady() && target.Distance(target) <= _E.Range)
                 {
                     switch (Eprediction.Hitchance)
                     {
+                        case HitChance.Low:
+                        case HitChance.Medium:
                         case HitChance.High:
                         case HitChance.VeryHigh:
                         case HitChance.Immobile:
@@ -238,6 +268,8 @@ namespace SenseElise
                 if (Option.Item("GankingCombo Human W").GetValue<bool>() && _W.IsReady() && target.Distance(target) <= _W.Range)
                     switch (Eprediction.Hitchance)
                     {
+                        case HitChance.Low:
+                        case HitChance.Medium:
                         case HitChance.High:
                         case HitChance.VeryHigh:
                         case HitChance.Immobile:
@@ -248,15 +280,6 @@ namespace SenseElise
                 if (Option.Item("GankingCombo Human Q").GetValue<bool>() && _Q.IsReady() && target.Distance(target) <= _Q.Range)
                     _Q.Cast(target);
             }
-            else
-            {
-                if (_sE.IsReady() && Player.Distance(target) <= _sE.Range && Player.Distance(target) > _sQ.Range && Option.Item("GankingCombo Spider E").GetValue<bool>())
-                     _sE.Cast(target);                    
-                if (_sQ.IsReady() && Option.Item("GankingCombo Spider Q").GetValue<bool>())
-                    _sQ.Cast(target);
-                if (_sW.IsReady() && Option.Item("GankingCombo Spider W").GetValue<bool>())
-                    _sW.Cast();
-            }
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -264,20 +287,34 @@ namespace SenseElise
             if (Player.IsDead) return;
             var elise = Drawing.WorldToScreen(Player.Position);
 
-            if (Option.Item("Drawing Q Spider").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _sQ.Range, Color.White, 1);
-            if (Option.Item("Drawing E Spider").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _sE.Range, Color.Red, 1);
-            if (Option.Item("Drawing E Spider").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Blue, 1);
-            if (Option.Item("Drawing Q Human").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Green, 1);
-            if (Option.Item("Drawing W Human").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _W.Range, Color.Yellow, 1);
-            if (Option.Item("Drawing E Human").GetValue<bool>())
-                Render.Circle.DrawCircle(Player.Position, _E.Range, Color.YellowGreen, 1);
+            if (Human())
+            {
+                if (Option.Item("Drawing Q Human").GetValue<bool>())
+                    Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Green, 1);
 
-          //  if (Option.Item("ComboDamage").GetValue<bool>())
+                if (Option.Item("Drawing W Human").GetValue<bool>())
+                    Render.Circle.DrawCircle(Player.Position, _W.Range, Color.Yellow, 1);
+
+                if (Option.Item("Drawing E Human").GetValue<bool>())
+                    Render.Circle.DrawCircle(Player.Position, _E.Range, Color.YellowGreen, 1);
+
+            }
+
+            else
+            {
+                if (Option.Item("Drawing Q Spider").GetValue<bool>())
+                    Render.Circle.DrawCircle(Player.Position, _sQ.Range, Color.White, 1);
+
+                if (Option.Item("Drawing E Spider").GetValue<bool>())
+
+                    Render.Circle.DrawCircle(Player.Position, _sE.Range, Color.Red, 1);
+
+                if (Option.Item("Drawing E Spider").GetValue<bool>())
+                    Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Blue, 1);
+            }
+
+
+            //  if (Option.Item("ComboDamage").GetValue<bool>())
 
         }
 
@@ -344,19 +381,19 @@ namespace SenseElise
             var HotKeyMenu = new Menu("E Hotkey", "E Hotkey");
             {
                 HotKeyMenu.AddItem((new MenuItem("HotKey E", "HotKey E").SetValue(true)));
-            //    HotKeyMenu.AddItem((new MenuItem("Flash Use E", "If enemy HP (%) Flash + Use E").SetValue(new Slider(20))));
+                //    HotKeyMenu.AddItem((new MenuItem("Flash Use E", "If enemy HP (%) Flash + Use E").SetValue(new Slider(20))));
                 HotKeyMenu.AddItem((new MenuItem("HotKey", " HotKey Active").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press))));
             }
-
+            /*
             var MiscMenu = new Menu("Misc", "Misc");
             {
                 MiscMenu.AddItem((new MenuItem("Auto Smite Red", "Auto Smite Red").SetValue(true)));
                 MiscMenu.AddItem((new MenuItem("Auto Smite Blue", "Auto Smite Blue").SetValue(true)));
                 MiscMenu.AddItem((new MenuItem("Auto Smite Baron", "Auto Smite Baron").SetValue(true)));
                 MiscMenu.AddItem((new MenuItem("Auto Smite Dragon", "Auto Smite Dragon").SetValue(true)));
-                MiscMenu.AddItem((new MenuItem("Auto Smite Enemy", "Auto Smite Enemy").SetValue(true)));    
+                MiscMenu.AddItem((new MenuItem("Auto Smite Enemy", "Auto Smite Enemy").SetValue(true)));
             }
-
+            */
             var DrawingMenu = new Menu("Drawing", "Drawing");
             {
                 DrawingMenu.AddItem((new MenuItem("Drawing Q Human", "Draw Q [ Human ]").SetValue(true)));
@@ -364,7 +401,7 @@ namespace SenseElise
                 DrawingMenu.AddItem((new MenuItem("Drawing E Human", "Draw E [ Human ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing Q Spider", "Draw Q [ Spider ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing E Spider", "Draw E [ Spider ]").SetValue(true)));
-                DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
+               // DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
             }
 
             Option.AddSubMenu(HarassMenu);
@@ -373,7 +410,7 @@ namespace SenseElise
             Option.AddSubMenu(ComboMenu);
             Option.AddSubMenu(GankingComboMenu);
             Option.AddSubMenu(HotKeyMenu);
-            Option.AddSubMenu(MiscMenu);
+       //     Option.AddSubMenu(MiscMenu);
             Option.AddSubMenu(DrawingMenu);
 
             Option.AddToMainMenu();
@@ -383,5 +420,6 @@ namespace SenseElise
         {
             return Player.Spellbook.GetSpell(SpellSlot.Q).Name == "EliseHumanQ";
         }
+
     }
 }
