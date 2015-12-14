@@ -27,7 +27,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 
 
-namespace SenseElise
+namespace Sense_Elise
 {
 
     /// <summary>
