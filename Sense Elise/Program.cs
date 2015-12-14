@@ -85,7 +85,7 @@ namespace Sense_Elise
                     case HitChance.Medium:
                     case HitChance.High:
                     case HitChance.VeryHigh:
-                        _E.Cast(Eprediction.CastPosition);
+                        _E.Cast(target);
                         break;
                 }
             }
@@ -175,7 +175,6 @@ namespace Sense_Elise
             var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
             var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
             var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-            if (Etarget != null) return;
 
             if (Human())
             {
@@ -234,10 +233,7 @@ namespace Sense_Elise
             var Etarget = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
             var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
             var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-
-
-            if (Etarget != null) return;
+            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);;
 
             if (Human())
             {
