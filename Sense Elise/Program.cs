@@ -32,7 +32,7 @@ namespace Sense_Elise
             _E = new Spell(SpellSlot.E, 1075f);
             _R = new Spell(SpellSlot.R);
             _sQ = new Spell(SpellSlot.Q, 475f);
-            _sW = new Spell(SpellSlot.W, 125f);
+            _sW = new Spell(SpellSlot.W);
             _sE = new Spell(SpellSlot.E, 750f);
 
             SetMenu();
@@ -43,7 +43,7 @@ namespace Sense_Elise
         private static void OnUpdate(EventArgs args)
         {
             if (Player.IsDead) return;
-            var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
+            var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
             switch (_Orbwalker.ActiveMode)
             {
@@ -112,10 +112,10 @@ namespace Sense_Elise
 
             if (target != null)
             {
-                if (Option_item("Harass Human W") && _W.IsReady() && target.Distance(Player.Position) < _W.Range)
+                if (Option_item("Harass Human W") && _W.IsReady() && target.Distance(Player.Position) <= _W.Range)
                     _W.Cast(target);
 
-                if (Option_item("Harass Human Q") && _Q.IsReady() && target.Distance(Player.Position) < _Q.Range)
+                if (Option_item("Harass Human Q") && _Q.IsReady() && target.Distance(Player.Position) <= _Q.Range)
                     _Q.CastOnUnit(Qtarget);
             }
         }
@@ -142,7 +142,7 @@ namespace Sense_Elise
             {
                 if (Option_item("Lane Spider Q") && _sQ.IsReady() && sQMinions.Distance(sQMinions) < _sQ.Range)
                     _sQ.CastOnUnit(sQMinions);
-                if (Option_item("Lane Spider Q") && _sW.IsReady() && sQMinions.Distance(sQMinions) < 125)
+                if (Option_item("Lane Spider Q") && _sW.IsReady() && sQMinions.Distance(sQMinions) <= 125)
                     _sW.Cast();
             }
         }
@@ -243,7 +243,7 @@ namespace Sense_Elise
                 if (Option_item("Combo Spider Q") && _sQ.IsReady() && sQtarget != null)
                     _sQ.Cast(sQtarget);
 
-                if (Option_item("Combo Spider W") && _sW.IsReady() &&  sWtarget != null)
+                if (Option_item("Combo Spider W") && _sW.IsReady() && !_sQ.IsReady())
                     _sW.Cast();
 
                 if (Option_item("Combo Spider E") && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
@@ -261,26 +261,40 @@ namespace Sense_Elise
             var Wtarget = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
             var Etarget = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
             var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
-            var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-
+            var sEtarget = TargetSelector.GetTarget(_sE.Range, TargetSelector.DamageType.Magical);
+            var sE2target = TargetSelector.GetTarget(_sE.Range + _sQ.Range, TargetSelector.DamageType.Magical);
+            var sEMinions = MinionManager.GetMinions(Player.ServerPosition, _sE.Range).FirstOrDefault();
+            var sE2Minions = MinionManager.GetMinions(_sE.Range + _sQ.Range, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.None).FirstOrDefault(x => x.Distance(Player.Position) < _Q.Range && Player.Distance(sEMinions.Position) < _sE.Range); 
+                //Player.Distance(sEMinions.Position) < _sE.Range && sE2target.Distance(Player.Position) < _Q.Range);
+        
             var Wprediction = _W.GetPrediction(Wtarget);
 
             if (Human())
             {
-                if (_R.IsReady() && Option.Item("R").GetValue<bool>())
+                if (_R.IsReady() && Option.Item("R").GetValue<bool>() && sEtarget != null)
                     _R.Cast();
             }
 
             if (!Human())
             {
-                if (_sE.IsReady() && sEtarget != null && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range && Option_item("GankingCombo Spider E"))
-                    _sE.Cast(sEtarget);
+                if (sEtarget != null)
+                {
+                    if (_sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range && Option_item("GankingCombo Spider E"))
+                        _sE.Cast(sEtarget);
+                }
+                else if (sE2target != null)
+                {
+                    if (_sE.IsReady() && sEMinions.Distance(sE2target) <= _sQ.Range && Option_item("GankingCombo Spider E"))
+                        _sE.Cast(sE2Minions);
+                } 
+
                 if (_sQ.IsReady() && Option_item("GankingCombo Spider Q") && sQtarget != null)
                     _sQ.Cast(sQtarget);
-                if (_sW.IsReady() && Option_item("GankingCombo Spider W") && sWtarget != null)
+
+                if (_sW.IsReady() && Option_item("GankingCombo Spider W") && !_sQ.IsReady())
                     _sW.Cast();
-                if (!_sW.IsReady() && _sQ.IsReady() && _R.IsReady() && _E.IsReady())
+
+                if (!_sW.IsReady() && !_sQ.IsReady() && _R.IsReady() && _E.IsReady())
                     _R.Cast();
             }
 
@@ -309,7 +323,7 @@ namespace Sense_Elise
             }
 
 
-            if (Option_item("GankingCombo Human W") && _W.IsReady() && Wtarget.Distance(Player.Position) <= _W.Range)
+            if (Option_item("GankingCombo Human W") && _W.IsReady() && Wtarget != null)
                 switch (Wprediction.Hitchance)
                 {
                     case HitChance.Medium:
@@ -332,23 +346,23 @@ namespace Sense_Elise
 
             if (Human())
             {
-                if (Option.Item("Drawing Q Human").GetValue<bool>())
+                if (Option_item("Drawing Q Human"))
                     Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Yellow, 1);
 
-                if (Option.Item("Drawing W Human").GetValue<bool>())
+                if (Option_item("Drawing W Human"))
                     Render.Circle.DrawCircle(Player.Position, _W.Range, Color.Red, 1);
 
-                if (Option.Item("Drawing E Human").GetValue<bool>())
+                if (Option_item("Drawing E Human"))
                     Render.Circle.DrawCircle(Player.Position, _E.Range, Color.White, 1);
 
             }
 
             else
             {
-                if (Option.Item("Drawing Q Spider").GetValue<bool>())
+                if (Option_item("Drawing Q Spider"))
                     Render.Circle.DrawCircle(Player.Position, _sQ.Range, Color.White, 1);
 
-                if (Option.Item("Drawing E Spider").GetValue<bool>())
+                if (Option_item("Drawing E Spider"))
                     Render.Circle.DrawCircle(Player.Position, _sE.Range, Color.Red, 1);;
             }
         }
