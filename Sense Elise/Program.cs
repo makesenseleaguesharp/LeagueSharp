@@ -75,19 +75,10 @@ namespace Sense_Elise
         private static void HotKey()
         {
             var target = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
-            var Eprediction = _E.GetPrediction(target);
 
             if (_E.IsReady() && Option_item("HotKey E") && target.Distance(Player.Position) < _E.Range)
-            {
-                switch (Eprediction.Hitchance)
-                {
-                    case HitChance.High:
-                    case HitChance.VeryHigh:
-                    case HitChance.Immobile:
-                        _E.Cast(Eprediction.CastPosition);
-                        break;
-                }
-            }                             
+                _E.CastIfHitchanceEquals(target, Hitchance("GankingCombo E HitChance"), true);
+
         }
         private static void Harass()
         {
@@ -158,7 +149,7 @@ namespace Sense_Elise
                     if (_sQ.IsReady() && Option_item("JungleClearMenu Spider Q") && Player.Distance(minion) <= _sQ.Range)
                         _sQ.CastOnUnit(minion);
 
-                    if (_sW.IsReady() && Option_item("JungleClearMenu Spider W")&& Player.Distance(minion) <= 125)
+                    if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && Player.Distance(minion) <= 125)
                         _sW.Cast();
 
                 }
@@ -175,28 +166,17 @@ namespace Sense_Elise
             var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
             var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
 
-            var Eprediction = _E.GetPrediction(Etarget);
             var Wprediction = _W.GetPrediction(Wtarget);
 
             if (Human())
             {
                 if (_E.IsReady() && Option_item("Combo Human E") && Etarget.Distance(Player.Position) < _E.Range)
-                {
-                    switch (Eprediction.Hitchance)
-                    {
-                        case HitChance.High:
-                        case HitChance.VeryHigh:
-                        case HitChance.Immobile:
-                            _E.Cast(Eprediction.CastPosition);
-                            break;
-                    }
-                }
-                     _E.Cast(Eprediction.CastPosition);
+                    _E.CastIfHitchanceEquals(Etarget, Hitchance("Combo E HitChance"), true);
 
                 if (Option_item("Combo Human W") && _W.IsReady() && Wtarget.Distance(Player.Position) < _W.Range)
                 {
                     switch (Wprediction.Hitchance)
-                    { 
+                    {
                         case HitChance.Medium:
                         case HitChance.High:
                         case HitChance.VeryHigh:
@@ -220,6 +200,8 @@ namespace Sense_Elise
                     _sW.Cast();
                 if (Option_item("Combo Spider E") && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
                     _sE.Cast(sEtarget);
+                if (Option_item("Combo R") && _E.IsReady() && !_sQ.IsReady() && _sW.IsReady())
+                    _R.Cast();
             }
 
         }
@@ -231,54 +213,46 @@ namespace Sense_Elise
             var Etarget = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
             var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
             var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
-            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical); ;
+            var sEtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
+
+            var Wprediction = _W.GetPrediction(Wtarget);
 
             if (Human())
             {
-                var Eprediction = _E.GetPrediction(Etarget);
-                var Wprediction = _W.GetPrediction(Wtarget);
                 if (_R.IsReady() && Option.Item("R").GetValue<bool>())
                     _R.Cast();
-
-                if (!Human())
-                {
-                    if (_sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range && Option_item("GankingCombo Spider E"))
-                        _sE.Cast(sEtarget);
-                    if (_sQ.IsReady() && Option_item("GankingCombo Spider Q"))
-                        _sQ.Cast(sQtarget);
-                    if (_sW.IsReady() && Option_item("GankingCombo Spider W"))
-                        _sW.Cast();
-                    if (!_sW.IsReady() && _sQ.IsReady() && _R.IsReady() && _E.IsReady())
-                        _R.Cast();
-                }
-
-                if (Option_item("GankingCombo Human E") && _E.IsReady() && Etarget.Distance(Player.Position) <= _E.Range)
-                {
-                    switch (Eprediction.Hitchance)
-                    {
-                        case HitChance.High:
-                        case HitChance.VeryHigh:
-                        case HitChance.Immobile:
-                            _E.Cast(Eprediction.CastPosition);
-                            break;
-                    }
-
-                }
-
-                if (Option_item("GankingCombo Human W") && _W.IsReady() && Wtarget.Distance(Player.Position) <= _W.Range)
-                    switch (Eprediction.Hitchance)
-                    {
-                        case HitChance.Medium:
-                        case HitChance.High:
-                        case HitChance.VeryHigh:
-                        case HitChance.Immobile:
-                            _E.Cast(Wtarget);
-                            break;
-                    }
-
-                if (Option_item("GankingCombo Human Q") && _Q.IsReady() && Qtarget.Distance(Player.Position) <= _Q.Range)
-                    _Q.Cast(Qtarget);
             }
+
+            if (!Human())
+            {
+                if (_sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range && Option_item("GankingCombo Spider E"))
+                    _sE.Cast(sEtarget);
+                if (_sQ.IsReady() && Option_item("GankingCombo Spider Q"))
+                    _sQ.Cast(sQtarget);
+                if (_sW.IsReady() && Option_item("GankingCombo Spider W"))
+                    _sW.Cast();
+                if (!_sW.IsReady() && _sQ.IsReady() && _R.IsReady() && _E.IsReady())
+                    _R.Cast();
+            }
+
+            if (Option_item("GankingCombo Human E") && _E.IsReady() && Etarget.Distance(Player.Position) <= _E.Range)
+                _E.CastIfHitchanceEquals(Etarget, Hitchance("GankingCombo E HitChance"), true);
+
+
+            if (Option_item("GankingCombo Human W") && _W.IsReady() && Wtarget.Distance(Player.Position) <= _W.Range)
+                switch (Wprediction.Hitchance)
+                {
+                    case HitChance.Medium:
+                    case HitChance.High:
+                    case HitChance.VeryHigh:
+                    case HitChance.Immobile:
+                        _W.Cast(Wtarget);
+                        break;
+                }
+
+            if (Option_item("GankingCombo Human Q") && _Q.IsReady() && Qtarget.Distance(Player.Position) <= _Q.Range)
+                _Q.Cast(Qtarget);
+
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -311,10 +285,6 @@ namespace Sense_Elise
                 if (Option.Item("Drawing E Spider").GetValue<bool>())
                     Render.Circle.DrawCircle(Player.Position, _Q.Range, Color.Blue, 1);
             }
-
-
-            //  if (Option.Item("ComboDamage").GetValue<bool>())
-
         }
 
         private static void SetMenu()
@@ -359,9 +329,11 @@ namespace Sense_Elise
                 ComboMenu.AddItem((new MenuItem("Combo Human Q", "Use Q [ Human ]").SetValue(true)));
                 ComboMenu.AddItem((new MenuItem("Combo Human W", "Use W [ Human ]").SetValue(true)));
                 ComboMenu.AddItem((new MenuItem("Combo Human E", "Use E [ Human ]").SetValue(true)));
+                ComboMenu.AddItem((new MenuItem("Combo E HitChance", "Human E HitChance").SetValue(new Slider(4, 1, 6))));
                 ComboMenu.AddItem((new MenuItem("Combo Spider Q", "Use Q [ Spider ]").SetValue(true)));
                 ComboMenu.AddItem((new MenuItem("Combo Spider W", "Use W [ Spider ]").SetValue(true)));
                 ComboMenu.AddItem((new MenuItem("Combo Spider E", "Use E [ Spider ]").SetValue(true)));
+
                 ComboMenu.AddItem((new MenuItem("Combo R", "Auto Switch Form").SetValue(true)));
             }
 
@@ -370,6 +342,7 @@ namespace Sense_Elise
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Human Q", " Use Q [ Human ]").SetValue(true)));
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Human W", " Use W [ Human ]").SetValue(true)));
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Human E", " Use E [ Human ]").SetValue(true)));
+                GankingComboMenu.AddItem((new MenuItem("GankingCombo E HitChance", "Human E HitChance").SetValue(new Slider(4, 1, 6))));
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Spider Q", " Use Q [ Spider ]").SetValue(true)));
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Spider W", " Use W [ Spider ]").SetValue(true)));
                 GankingComboMenu.AddItem((new MenuItem("GankingCombo Spider E", " Use E [ Spider ]").SetValue(true)));
@@ -380,6 +353,7 @@ namespace Sense_Elise
             var HotKeyMenu = new Menu("E Hotkey", "E Hotkey");
             {
                 HotKeyMenu.AddItem((new MenuItem("HotKey E", "HotKey Human E").SetValue(true)));
+                HotKeyMenu.AddItem((new MenuItem("HotKeyMenu E HitChance", "Human E HitChance").SetValue(new Slider(3, 1, 6))));
                 //    HotKeyMenu.AddItem((new MenuItem("Flash Use E", "If enemy HP (%) Flash + Use E").SetValue(new Slider(20))));
                 HotKeyMenu.AddItem((new MenuItem("HotKey", "HotKey Active").SetValue(new KeyBind("G".ToCharArray()[0], KeyBindType.Press))));
             }
@@ -400,7 +374,7 @@ namespace Sense_Elise
                 DrawingMenu.AddItem((new MenuItem("Drawing E Human", "Draw E [ Human ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing Q Spider", "Draw Q [ Spider ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing E Spider", "Draw E [ Spider ]").SetValue(true)));
-                // DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
+                //DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
             }
 
             Option.AddSubMenu(HarassMenu);
@@ -424,5 +398,31 @@ namespace Sense_Elise
             return Option.Item(itemname).GetValue<bool>();
         }
 
+        private static HitChance Hitchance(string Type)
+        {
+            HitChance result = HitChance.Low;
+            switch (Option.Item(Type).GetValue<Slider>().Value)
+            {
+                case 1:
+                    result = HitChance.OutOfRange;
+                    break;
+                case 2:
+                    result = HitChance.Impossible;
+                    break;
+                case 3:
+                    result = HitChance.Low;
+                    break;
+                case 4:
+                    result = HitChance.Medium;
+                    break;
+                case 5:
+                    result = HitChance.High;
+                    break;
+                case 6:
+                    result = HitChance.VeryHigh;
+                    break;
+            }
+            return result;
+        }
     }
 }
