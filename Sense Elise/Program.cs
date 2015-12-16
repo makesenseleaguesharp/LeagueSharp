@@ -52,10 +52,10 @@ namespace Sense_Elise
                     break;
 
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (JungleMinions.Count > 0)
-                        JungleClear();
-                    else
-                        LaneClear();
+                        if (JungleMinions.Count < 0)
+                            LaneClear();
+                        else
+                            JungleClear();
                     break;
 
                 case Orbwalking.OrbwalkingMode.Combo:
@@ -81,7 +81,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Option_item("HotKey E") && target != null)
                 {
                     HitChance HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
+                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -125,6 +125,7 @@ namespace Sense_Elise
             var WMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range).FirstOrDefault();
             var QMinions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range).FirstOrDefault();
             var sQMinions = MinionManager.GetMinions(Player.ServerPosition, _sQ.Range).FirstOrDefault();
+            if (WMinions != null && QMinions != null && sQMinions != null) return;
 
             if (Human())
             {
@@ -150,12 +151,12 @@ namespace Sense_Elise
         private static void JungleClear()
         {
             var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-
+            if (JungleMinions.Count <= 0) return;
             foreach (var minion in JungleMinions)
             {
                 if (Human())
                 {
-                    if (Player.ManaPercent <= Option.Item("LaneClear Mana").GetValue<Slider>().Value) return;
+                    if (Player.ManaPercent <= Option.Item("JungleClear Mana").GetValue<Slider>().Value) return;
                     else
                     {
                         if (_Q.IsReady() && minion.IsValidTarget() && Option_item("JungleClearMenu Human Q") && Player.Distance(minion) <= _Q.Range)
@@ -197,7 +198,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
                 {
                     HitChance HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
+                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -246,7 +247,7 @@ namespace Sense_Elise
                 if (Option_item("Combo Spider W") && _sW.IsReady() && !_sQ.IsReady())
                     _sW.Cast();
 
-                if (Option_item("Combo Spider E") && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
+                if (Option_item("Combo Spider E") && !_sQ.IsReady() && !_sW.IsReady() &&_sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
                     _sE.Cast(sEtarget);
 
                 if (Option_item("Combo R") && _E.IsReady() && !_sQ.IsReady() && !_sW.IsReady() && Etarget != null && Player.Distance(sQtarget) > 260)
@@ -302,7 +303,7 @@ namespace Sense_Elise
             if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
             {
                 HitChance HC = HitChance.VeryHigh;
-                switch (Option.Item("GankingCombo E HitChance").GetValue<Slider>().Value)
+                switch (Option.Item("GankingCombo E HitChance").GetValue<StringList>().SelectedIndex)
                 {
                     case 1:
                         HC = HitChance.Impossible;
