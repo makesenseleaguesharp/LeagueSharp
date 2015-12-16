@@ -54,9 +54,10 @@ namespace Sense_Elise
                 case Orbwalking.OrbwalkingMode.LaneClear:
                         if (JungleMinions.Count < 0)
                             LaneClear();
+                            break;
                         else
                             JungleClear();
-                    break;
+                        break;
 
                 case Orbwalking.OrbwalkingMode.Combo:
                     Combo();
@@ -81,7 +82,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Option_item("HotKey E") && target != null)
                 {
                     HitChance HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
+                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -198,7 +199,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
                 {
                     HitChance HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
+                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -303,7 +304,7 @@ namespace Sense_Elise
             if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
             {
                 HitChance HC = HitChance.VeryHigh;
-                switch (Option.Item("GankingCombo E HitChance").GetValue<StringList>().SelectedIndex)
+                switch (Option.Item("GankingCombo E HitChance").GetValue<Slider>().Value)
                 {
                     case 1:
                         HC = HitChance.Impossible;
