@@ -85,7 +85,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Option_item("HotKey E") && target != null)
                 {
                     var HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
+                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -202,7 +202,7 @@ namespace Sense_Elise
                 if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
                 {
                     var HC = HitChance.VeryHigh;
-                    switch (Option.Item("Combo E HitChance").GetValue<StringList>().SelectedIndex)
+                    switch (Option.Item("Combo E HitChance").GetValue<Slider>().Value)
                     {
                         case 1:
                             HC = HitChance.Impossible;
@@ -307,7 +307,7 @@ namespace Sense_Elise
             if (_E.IsReady() && Etarget != null && Option_item("Combo Human E"))
             {
                 var HC = HitChance.VeryHigh;
-                switch (Option.Item("GankingCombo E HitChance").GetValue<StringList>().SelectedIndex)
+                switch (Option.Item("GankingCombo E HitChance").GetValue<Slider>().Value)
                 {
                     case 1:
                         HC = HitChance.Impossible;
