@@ -145,7 +145,6 @@ namespace Sense_Elise
             var WMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range).FirstOrDefault();
             var QMinions = MinionManager.GetMinions(Player.ServerPosition, _Q.Range).FirstOrDefault();
             var sQMinions = MinionManager.GetMinions(Player.ServerPosition, _sQ.Range).FirstOrDefault();
-            if (WMinions != null && QMinions != null && sQMinions != null) return;
 
             if (Human())
             {
@@ -171,7 +170,7 @@ namespace Sense_Elise
         private static void JungleClear()
         {
             var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
-            if (JungleMinions.Count <= 0) return;
+            if (JungleMinions.Count == 0) return;
             foreach (var minion in JungleMinions)
             {
                 if (Human())
