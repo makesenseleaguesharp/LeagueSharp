@@ -55,16 +55,11 @@ namespace Sense_Elise
                     break;
 
                 case Orbwalking.OrbwalkingMode.LaneClear:
-                    if (JungleMinions.Count < 0)
-                    {
-                        LaneClear();
-                        break;
-                    }
+                    if (JungleMinions.Count > 0)
+                        JungleClear();    
                     else
-                    {
-                        JungleClear();
-                        break;
-                    }
+                        LaneClear();
+                    break;
 
                 case Orbwalking.OrbwalkingMode.Combo:
                     Combo();

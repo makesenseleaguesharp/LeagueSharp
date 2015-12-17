@@ -21,3 +21,4 @@ C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Re
 C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\SharpDX.Direct3D9.dll
 C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\clipper_library.dll
 C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\LeagueSharp.Sandbox.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\obj\Debug\Sense Elise.csprojResolveAssemblyReference.cache
