@@ -34,6 +34,9 @@ namespace Sense_Elise
             _sQ = new Spell(SpellSlot.Q, 475f);
             _sW = new Spell(SpellSlot.W);
             _sE = new Spell(SpellSlot.E, 750f);
+            
+            _W.SetSkillshot(0.25f, 100f, 1000, true, SkillshotType.SkillshotLine);
+            _E.SetSkillshot(0.25f, 55f, 1300, true, SkillshotType.SkillshotLine);
 
             SetMenu();
 
