@@ -162,7 +162,7 @@ namespace Sense_Elise
             {
                 if (Option_item("Lane Spider Q") && _sQ.IsReady() && sQMinions.Distance(sQMinions) < _sQ.Range)
                     _sQ.CastOnUnit(sQMinions);
-                if (Option_item("Lane Spider Q") && _sW.IsReady() && sQMinions.Distance(sQMinions) <= 125)
+                if (Option_item("Lane Spider Q") && _sW.IsReady() && !_sQ.IsReady())
                     _sW.Cast();
             }
         }
@@ -193,7 +193,7 @@ namespace Sense_Elise
                     if (_sQ.IsReady() && Option_item("JungleClearMenu Spider Q") && Player.Distance(minion) <= _sQ.Range)
                         _sQ.CastOnUnit(minion);
 
-                    if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && Player.Distance(minion) <= 125)
+                    if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && !_sQ.IsReady())
                         _sW.Cast();
 
                 }
