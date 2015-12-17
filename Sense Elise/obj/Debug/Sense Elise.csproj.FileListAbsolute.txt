@@ -10,3 +10,14 @@ C:\Users\crixer\documents\visual studio 2015\Projects\Sense Elise\Sense Elise\bi
 C:\Users\crixer\documents\visual studio 2015\Projects\Sense Elise\Sense Elise\obj\Debug\Sense Elise.csprojResolveAssemblyReference.cache
 C:\Users\crixer\documents\visual studio 2015\Projects\Sense Elise\Sense Elise\obj\Debug\Sense Elise.exe
 C:\Users\crixer\documents\visual studio 2015\Projects\Sense Elise\Sense Elise\obj\Debug\Sense Elise.pdb
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\Sense Elise.exe.config
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\obj\Debug\Sense Elise.exe
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\obj\Debug\Sense Elise.pdb
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\Sense Elise.exe
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\Sense Elise.pdb
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\LeagueSharp.Common.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\LeagueSharp.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\SharpDX.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\clipper_library.dll
+C:\Users\TG\Documents\Visual Studio 2015\Projects\LeagueSharp\Sense Elise\bin\Release\LeagueSharp.Sandbox.dll
