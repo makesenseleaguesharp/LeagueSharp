@@ -35,6 +35,7 @@ namespace Sense_Elise
             _sW = new Spell(SpellSlot.W);
             _sE = new Spell(SpellSlot.E, 750f);
 
+
             _W.SetSkillshot(0.25f, 100f, 1000, true, SkillshotType.SkillshotLine);
             _E.SetSkillshot(0.25f, 55f, 1300, true, SkillshotType.SkillshotLine);
 
@@ -196,6 +197,9 @@ namespace Sense_Elise
                     if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && !_sQ.IsReady())
                         _sW.Cast();
 
+                    if (!_sQ.IsReady() && !_sW.IsReady() && !Player.HasBuff("EliseSpiderW") && _R.IsReady())
+                        _R.Cast();
+
                 }
             }
 
@@ -207,7 +211,6 @@ namespace Sense_Elise
             var Wtarget = TargetSelector.GetTarget(_W.Range, TargetSelector.DamageType.Magical);
             var Etarget = TargetSelector.GetTarget(_E.Range, TargetSelector.DamageType.Magical);
             var sQtarget = TargetSelector.GetTarget(_sQ.Range, TargetSelector.DamageType.Magical);
-            var sWtarget = TargetSelector.GetTarget(_sW.Range, TargetSelector.DamageType.Magical);
             var sEtarget = TargetSelector.GetTarget(_sE.Range, TargetSelector.DamageType.Magical);
 
             var Wprediction = _W.GetPrediction(Wtarget);
@@ -266,10 +269,10 @@ namespace Sense_Elise
                 if (Option_item("Combo Spider W") && _sW.IsReady() && !_sQ.IsReady())
                     _sW.Cast();
 
-                if (Option_item("Combo Spider E") && !_sQ.IsReady() && !_sW.IsReady() && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
+                if (Option_item("Combo Spider E") && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
                     _sE.Cast(sEtarget);
 
-                if (Option_item("Combo R") && _E.IsReady() && !_sQ.IsReady() && !_sW.IsReady() && Etarget != null && Player.Distance(sQtarget) > 260)
+                if (Option_item("Combo R") && !_sQ.IsReady() && !_sW.IsReady() && Etarget != null && !Player.HasBuff("EiseSpiderw"))
                     _R.Cast();
             }
 
@@ -315,7 +318,7 @@ namespace Sense_Elise
                 if (_sW.IsReady() && Option_item("GankingCombo Spider W") && !_sQ.IsReady())
                     _sW.Cast();
 
-                if (!_sW.IsReady() && !_sQ.IsReady() && _R.IsReady() && Option_item("R") && Player.Distance(sQtarget) > 260)
+                if (!_sW.IsReady() && !_sQ.IsReady() && _R.IsReady() && Option_item("R") && !Player.HasBuff("EiseSpiderw"))
                     _R.Cast();
             }
 
@@ -376,7 +379,6 @@ namespace Sense_Elise
 
                 if (Option_item("Drawing E Human"))
                     Render.Circle.DrawCircle(Player.Position, _E.Range, Color.Green, 5);
-
             }
 
             else
@@ -472,7 +474,7 @@ namespace Sense_Elise
                 DrawingMenu.AddItem((new MenuItem("Drawing E Human", "Draw E [ Human ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing Q Spider", "Draw Q [ Spider ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing E Spider", "Draw E [ Spider ]").SetValue(true)));
-                //DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
+                              //DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
             }
 
             Option.AddSubMenu(HarassMenu);
@@ -495,6 +497,5 @@ namespace Sense_Elise
         {
             return Option.Item(itemname).GetValue<bool>();
         }
-
     }
 }
