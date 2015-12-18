@@ -197,7 +197,7 @@ namespace Sense_Elise
                     if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && !_sQ.IsReady())
                         _sW.Cast();
 
-                    if (!_sQ.IsReady() && !_sW.IsReady() && !Player.HasBuff("EliseSpiderW") && _R.IsReady())
+                    if (!_sQ.IsReady() && !_sW.IsReady() && Option_item("JungleClearMenu R")  && !Player.HasBuff("EliseSpiderW") && _R.IsReady())
                         _R.Cast();
 
                 }
