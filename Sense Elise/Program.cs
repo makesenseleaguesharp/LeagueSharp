@@ -14,6 +14,16 @@ namespace Sense_Elise
         private static string championName = "Elise";
         private static Orbwalking.Orbwalker _Orbwalker;
         private static Spell _Q, _W, _E, _R, _sQ, _sW, _sE;
+        private static float[] HumanQcd = { 6, 6, 6, 6, 6 };
+        private static float[] HumanWcd = { 12, 12, 12, 12, 12 };
+        private static float[] HumanEcd = { 14, 13, 12, 11, 10 };
+        private static float[] SpiderQcd = { 6, 6, 6, 6, 6 };
+        private static float[] SpiderWcd = { 12, 12, 12, 12, 12 };
+        private static float[] SpiderEcd = { 26, 23, 20, 17, 14 };
+        private static float Qcd, Wcd, Ecd = 0;
+        private static float sQcd, sWcd, sEcd = 0;
+        private static float QcdRem, WcdRem, EcdRem = 0;
+        private static float sQcdRem, sWcdRem, sEcdRem = 0;
 
         static void Main(string[] args)
         {
@@ -197,8 +207,9 @@ namespace Sense_Elise
                     if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && !_sQ.IsReady())
                         _sW.Cast();
 
-                    if (!_sQ.IsReady() && !_sW.IsReady() && Option_item("JungleClearMenu R")  && !Player.HasBuff("EliseSpiderW") && _R.IsReady())
+                    if (!_sQ.IsReady() && !_sW.IsReady() && Option_item("JungleClearMenu R")  && !Player.HasBuff("EliseSpiderW") && minion != null && _R.IsReady() && _W.CanCast(minion))
                         _R.Cast();
+                        
 
                 }
             }
@@ -266,13 +277,13 @@ namespace Sense_Elise
                 if (Option_item("Combo Spider Q") && _sQ.IsReady() && sQtarget != null)
                     _sQ.Cast(sQtarget);
 
-                if (Option_item("Combo Spider W") && _sW.IsReady() && !_sQ.IsReady())
+                if (Option_item("Combo Spider W") && _sW.IsReady() && !_sQ.IsReady() && sQtarget != null)
                     _sW.Cast();
 
                 if (Option_item("Combo Spider E") && _sE.IsReady() && Player.Distance(sEtarget) <= _sE.Range && Player.Distance(sEtarget) > _sQ.Range)
                     _sE.Cast(sEtarget);
 
-                if (Option_item("Combo R") && !_sQ.IsReady() && !_sW.IsReady() && Etarget != null && !Player.HasBuff("EiseSpiderw"))
+                if (Option_item("Combo R") && !_sQ.IsReady() && !_sW.IsReady() && Etarget != null && !Player.HasBuff("EiseSpiderw") && _W.IsReady())
                     _R.Cast();
             }
 
@@ -318,7 +329,7 @@ namespace Sense_Elise
                 if (_sW.IsReady() && Option_item("GankingCombo Spider W") && !_sQ.IsReady())
                     _sW.Cast();
 
-                if (!_sW.IsReady() && !_sQ.IsReady() && _R.IsReady() && Option_item("R") && !Player.HasBuff("EiseSpiderw"))
+                if (!_sW.IsReady() && !_sQ.IsReady() && _R.IsReady() && Option_item("R") && !Player.HasBuff("EiseSpiderw") && Qtarget != null)
                     _R.Cast();
             }
 
@@ -390,6 +401,58 @@ namespace Sense_Elise
                     Render.Circle.DrawCircle(Player.Position, _sE.Range, Color.Red, 5);
             }
         }
+
+        private static bool Human()
+        {
+            return Player.Spellbook.GetSpell(SpellSlot.Q).Name == "EliseHumanQ";
+        }
+
+        private static bool Option_item(string itemname)
+        {
+            return Option.Item(itemname).GetValue<bool>();
+        }
+
+        public static void processCDs()
+        {
+            QcdRem = ((Qcd - Game.Time) > 0) ? (Qcd - Game.Time) : 0;
+            WcdRem = ((Wcd - Game.Time) > 0) ? (Wcd - Game.Time) : 0;
+            EcdRem = ((Ecd - Game.Time) > 0) ? (Ecd - Game.Time) : 0;
+
+            sQcdRem = ((sQcd - Game.Time) > 0) ? (sQcd - Game.Time) : 0;
+            sWcdRem = ((sWcd - Game.Time) > 0) ? (sWcd - Game.Time) : 0;
+            sEcdRem = ((sEcd - Game.Time) > 0) ? (sEcd - Game.Time) : 0;
+        }
+
+        public static void getCDs(GameObjectProcessSpellCastEventArgs spell)
+        {
+            //Console.WriteLine(spell.SData.Name + ": " + Q2.Level);
+
+            if (Human())
+            {
+                if (spell.SData.Name == "EliseHumanQ")
+                    Qcd = Game.Time + calcRealCD(HumanQcd[_Q.Level - 1]);
+                if (spell.SData.Name == "EliseHumanW")
+                    Wcd = Game.Time + calcRealCD(HumanWcd[_W.Level - 1]);
+                if (spell.SData.Name == "EliseHumanE")
+                    Ecd = Game.Time + calcRealCD(HumanEcd[_E.Level - 1]);
+            }
+            else
+            {
+
+                if (spell.SData.Name == "EliseSpiderQ")
+                    sQcd = Game.Time + calcRealCD(SpiderQcd[_sQ.Level - 1]);
+                if (spell.SData.Name == "EliseSpiderW")
+                    sWcd = Game.Time + calcRealCD(SpiderWcd[_sW.Level - 1]);
+                if (spell.SData.Name == "EliseSpiderE")
+                    sEcd = Game.Time + calcRealCD(SpiderEcd[_sE.Level - 1]);
+            }
+        }
+
+        public static float calcRealCD(float time)
+        {
+            return time + (time * Player.PercentCooldownMod);
+        }
+
 
         private static void SetMenu()
         {
@@ -474,7 +537,9 @@ namespace Sense_Elise
                 DrawingMenu.AddItem((new MenuItem("Drawing E Human", "Draw E [ Human ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing Q Spider", "Draw Q [ Spider ]").SetValue(true)));
                 DrawingMenu.AddItem((new MenuItem("Drawing E Spider", "Draw E [ Spider ]").SetValue(true)));
-                              //DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
+                DrawingMenu.AddItem((new MenuItem("Drawing Human Cooltime", "Human Skill CoolTime").SetValue(true)));
+                DrawingMenu.AddItem((new MenuItem("Drawing Spider Cooltime", "Spider Skill CoolTime").SetValue(true)));
+                //DrawingMenu.AddItem((new MenuItem("ComboDamage", "Combo Damage").SetValue(true)));
             }
 
             Option.AddSubMenu(HarassMenu);
@@ -487,15 +552,6 @@ namespace Sense_Elise
             Option.AddSubMenu(DrawingMenu);
 
             Option.AddToMainMenu();
-        }
-        private static bool Human()
-        {
-            return Player.Spellbook.GetSpell(SpellSlot.Q).Name == "EliseHumanQ";
-        }
-
-        private static bool Option_item(string itemname)
-        {
-            return Option.Item(itemname).GetValue<bool>();
         }
     }
 }
