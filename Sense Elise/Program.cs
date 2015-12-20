@@ -14,12 +14,12 @@ namespace Sense_Elise
         private static string championName = "Elise";
         private static Orbwalking.Orbwalker _Orbwalker;
         private static Spell _Q, _W, _E, _R, _sQ, _sW, _sE;
-        private static float[] HumanQcd = { 6, 6, 6, 6, 6 };
-        private static float[] HumanWcd = { 12, 12, 12, 12, 12 };
-        private static float[] HumanEcd = { 14, 13, 12, 11, 10 };
-        private static float[] SpiderQcd = { 6, 6, 6, 6, 6 };
-        private static float[] SpiderWcd = { 12, 12, 12, 12, 12 };
-        private static float[] SpiderEcd = { 26, 23, 20, 17, 14 };
+        private static readonly float[] HumanQcd = { 6, 6, 6, 6, 6 };
+        private static readonly float[] HumanWcd = { 12, 12, 12, 12, 12 };
+        private static readonly float[] HumanEcd = { 14, 13, 12, 11, 10 };
+        private static readonly float[] SpiderQcd = { 6, 6, 6, 6, 6 };
+        private static readonly float[] SpiderWcd = { 12, 12, 12, 12, 12 };
+        private static readonly float[] SpiderEcd = { 26, 23, 20, 17, 14 };
         private static float Qcd, Wcd, Ecd = 0;
         private static float sQcd, sWcd, sEcd = 0;
         private static float QcdRem, WcdRem, EcdRem = 0;
@@ -52,11 +52,13 @@ namespace Sense_Elise
             SetMenu();
 
             Game.OnUpdate += OnUpdate;
+            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
         }
         private static void OnUpdate(EventArgs args)
         {
             if (Player.IsDead) return;
+            processCDs();
             var JungleMinions = MinionManager.GetMinions(Player.ServerPosition, _W.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth);
 
             switch (_Orbwalker.ActiveMode)
@@ -206,11 +208,6 @@ namespace Sense_Elise
 
                     if (_sW.IsReady() && Option_item("JungleClearMenu Spider W") && !_sQ.IsReady())
                         _sW.Cast();
-
-                    if (!_sQ.IsReady() && !_sW.IsReady() && Option_item("JungleClearMenu R")  && !Player.HasBuff("EliseSpiderW") && minion != null && _R.IsReady() && _W.CanCast(minion))
-                        _R.Cast();
-                        
-
                 }
             }
 
@@ -412,6 +409,14 @@ namespace Sense_Elise
             return Option.Item(itemname).GetValue<bool>();
         }
 
+        private static void OnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+        {
+            if (sender.IsMe)
+            {
+                getCDs(args);
+            }
+        }
+
         public static void processCDs()
         {
             QcdRem = ((Qcd - Game.Time) > 0) ? (Qcd - Game.Time) : 0;
@@ -440,11 +445,9 @@ namespace Sense_Elise
             {
 
                 if (spell.SData.Name == "EliseSpiderQ")
-                    sQcd = Game.Time + calcRealCD(SpiderQcd[_sQ.Level - 1]);
+                    sQcd = Game.Time + calcRealCD(SpiderQcd[_Q.Level - 1]);
                 if (spell.SData.Name == "EliseSpiderW")
-                    sWcd = Game.Time + calcRealCD(SpiderWcd[_sW.Level - 1]);
-                if (spell.SData.Name == "EliseSpiderE")
-                    sEcd = Game.Time + calcRealCD(SpiderEcd[_sE.Level - 1]);
+                    sWcd = Game.Time + calcRealCD(SpiderWcd[_W.Level - 1]);
             }
         }
 
